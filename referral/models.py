@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class Hammer_User(models.Model):
     """ User profile """
 
-    phone = models.IntegerField(
+    phone = models.BigIntegerField(
         verbose_name='phone',
         unique=True,
         validators=(

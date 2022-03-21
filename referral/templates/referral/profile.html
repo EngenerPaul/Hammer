@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Profile</h1>
+<a href="{% url 'logout_url' %}">Logout</a>
+{% if messages %}
+    <div class="alert alert-danger">
+        {% for mes in messages %}
+            {{ mes }}
+        {% endfor %}
+    </div> 
+{% endif %}
+<p>My phone number: {{ my_phone }}</p>
+<p>My referral code: {{ my_code }}</p>
+{% if strange_ref_code %}
+<p>Strange referral code: {{ strange_ref_code }}</p>
+{% else %}
+<div class="col-6">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type='submit' class='btn btn-primary btn-block'>Enter</button>
+    </form>
+</div>
+{% endif %}
+{% if partners %}
+<p style="margin-top: 25px;">Used my code:</p>
+<ul>
+    {% for partner in partners %}
+    <li>
+        {{ partner.phone }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock content %}
