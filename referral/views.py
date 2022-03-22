@@ -219,7 +219,7 @@ class LoginAPI(APIView):
             user.referral_code = None
             user.save()
 
-        time.sleep(1)
+        # time.sleep(1)
         return Response({'phone': phone, 'code': code})
 
 
@@ -289,7 +289,7 @@ class ChangeRefCode(APIView):
                 return Response('Your referral code already exists')
             all_referral_codes = User.objects.values_list('personal_code')
             all_referral_codes = [i[0] for i in all_referral_codes]
-            if referral_code == '' or referral_code:
+            if referral_code == '' or referral_code is None:
                 return Response("Your code is empty")
             if referral_code not in all_referral_codes:
                 return Response("This code doesn't exist")
