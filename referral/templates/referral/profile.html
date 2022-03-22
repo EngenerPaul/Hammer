@@ -15,7 +15,7 @@
 {% if strange_ref_code %}
 <p>Strange referral code: {{ strange_ref_code }}</p>
 {% else %}
-<div class="col-6">
+<div class="col-6" style="margin-bottom: 15px">
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -24,13 +24,15 @@
 </div>
 {% endif %}
 {% if partners %}
-<p style="margin-top: 25px;">Used my code:</p>
+<p>Used my code:</p>
 <ul>
     {% for partner in partners %}
     <li>
-        {{ partner.phone }}
+        {{ partner.username }}
     </li>
     {% endfor %}
 </ul>
+{% else %}
+<p>My referral code nobody used</p>
 {% endif %}
 {% endblock content %}
