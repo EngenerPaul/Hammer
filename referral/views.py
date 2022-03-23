@@ -9,6 +9,9 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LogoutView
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -103,7 +106,8 @@ class CustomLoginViewConfirm(TemplateView, FormMixin):
                     user.personal_code = get_referral_code(all_personal_codes)
                     # user.token = user.get_token
                 user.save()
-                request.session['is_auth'] = True
+                auth_user = authenticate(username=user.username, password=user.username)
+                login(request, auth_user)
                 return self.form_valid(request)
             else:
                 messages.error(self.request, 'Wrong code')
@@ -118,17 +122,11 @@ class HomeView(TemplateView):
     template_name = 'referral/home.html'
 
 
-class ProfileView(TemplateView, FormMixin):
+class ProfileView(LoginRequiredMixin, TemplateView, FormMixin):
     """ Profile page """
 
     template_name = 'referral/profile.html'
     form_class = EnterRefCodeForm
-
-    def get(self, request, *args, **kwargs):
-        if request.session.get('is_auth'):
-            return super().get(request, *args, **kwargs)
-        else:
-            return redirect('login_page')
 
     def post(self, request, *args, **kwargs):
         """ Setting a strange referral code """
@@ -180,7 +178,7 @@ def logout(request, *args, **kwargs):
     """ Logout """
 
     request.session.clear()
-    return redirect('home_page')
+    return LogoutView.as_view(next_page='home_page')(request)
 
 
 #################################################################
@@ -219,8 +217,7 @@ class LoginAPI(APIView):
             user.referral_code = None
             user.save()
 
-        # time.sleep(1)
-        return Response({'phone': phone, 'code': code})
+        return Response({'username': phone, 'code': code})
 
 
 class LoginConfirmAPI(APIView):
@@ -264,7 +261,7 @@ class ProfileAPI(APIView):
                 referral_code=user.personal_code).values_list('username')
             strange_phone = [i[0] for i in strange_phone]
             return Response({
-                'phone': user.username,
+                'username': user.username,
                 'personal referral code': user.personal_code,
                 'referral_code': referral_code,
                 'partners': strange_phone
